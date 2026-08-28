@@ -3,7 +3,12 @@
   "outputDirectory": "dist",
   "agents": {
     "runtime": "python",
-    "framework": "langgraph",
+    "framework": "workflow",
+    "timeout": 1800
+  },
+  "services": {
+    "runtime": "python",
+    "framework": "workflow",
     "timeout": 1800
   }
 }
