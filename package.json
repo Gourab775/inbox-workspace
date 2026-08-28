@@ -2,6 +2,7 @@
   "name": "email-assistant",
   "private": true,
   "version": "0.0.1",
+  "description": "Professional inbox management workspace with automated triage, prioritized drafting workflows, and human-in-the-loop approvals.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,7 +14,6 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@edgeone/types": "file:/Users/xiaban/Desktop/code/edgeone/ai-coding/pages-core/ef-dev-tools/packages/types",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.1",
