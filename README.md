@@ -2,7 +2,7 @@
 
 Professional full-stack workspace for automated inbox triage, prioritization, and reply drafting with human-in-the-loop approvals, live pipeline visualization, and pluggable email providers.
 
-**Live Demo:** https://email-assistant-agent-nu.vercel.app
+**Live Demo:** https://inbox-workspace.vercel.app
 
 **Category:** Productivity / Communication
 
@@ -138,7 +138,7 @@ Bind `SERVICE_*` variables in the deployment environment and deploy via EdgeOne 
 
 Vite builds to `dist`. Deploy the frontend to GitHub Pages or any static host; service endpoints run on EdgeOne.
 
-Live Demo: https://email-assistant-agent-nu.vercel.app
+Live Demo: https://inbox-workspace.vercel.app
 
 ## Customization
 
