@@ -1,26 +1,26 @@
-# Inbox Management Workspace
+﻿# Inbox Management Workspace
 
 Professional full-stack workspace for automated inbox triage, prioritization, and reply drafting with human-in-the-loop approvals, live pipeline visualization, and pluggable email providers.
 
-**Live Demo:** https://gourab775.github.io/email-assistant-agent
+**Live Demo:** https://email-assistant-agent-nu.vercel.app
 
 **Category:** Productivity / Communication
 
-**Stack:** Python · React 18 · Vite · State Workflow · Workflow Engine · Platform Services
+**Stack:** Python Â· React 18 Â· Vite Â· State Workflow Â· Workflow Engine Â· Platform Services
 
 ## Overview
 
-Inbox Management Workspace processes email end-to-end: it fetches messages, classifies and prioritizes them by configurable rules, and drafts replies through a three-stage service workflow (Analyst → Writer → Polisher). Every draft pauses at a review checkpoint — approve, edit, reject, regenerate, or skip before any action is taken. The pipeline streams real-time progress to a responsive React interface over server-sent events.
+Inbox Management Workspace processes email end-to-end: it fetches messages, classifies and prioritizes them by configurable rules, and drafts replies through a three-stage service workflow (Analyst â†’ Writer â†’ Polisher). Every draft pauses at a review checkpoint â€” approve, edit, reject, regenerate, or skip before any action is taken. The pipeline streams real-time progress to a responsive React interface over server-sent events.
 
 Shipped with realistic mock data for immediate evaluation and a one-variable switch to live IMAP for production use. Built for reliable, auditable communication workflows with enterprise-grade observability and deployment readiness.
 
 ## Features
 
-- **Multi-Stage Drafting Workflow** — Sequential services for triage analysis, reply composition, and voice polishing produce context-aware, tone-matched drafts.
-- **Human-in-the-Loop Approvals** — State workflow pauses at each draft for explicit user decisions; resume with approve / edit / reject / regenerate / skip.
-- **Real-Time Pipeline Visualization** — SSE streams node-level progress; the UI renders a live flow diagram and streaming narrative.
-- **Pluggable Email Source** — Ships with 10 realistic mock messages; switch to live IMAP with a single environment variable.
-- **Prioritization & Rules Engine** — Classification, VIP boosts, and user-defined rules sort and filter actionable messages.
+- **Multi-Stage Drafting Workflow** â€” Sequential services for triage analysis, reply composition, and voice polishing produce context-aware, tone-matched drafts.
+- **Human-in-the-Loop Approvals** â€” State workflow pauses at each draft for explicit user decisions; resume with approve / edit / reject / regenerate / skip.
+- **Real-Time Pipeline Visualization** â€” SSE streams node-level progress; the UI renders a live flow diagram and streaming narrative.
+- **Pluggable Email Source** â€” Ships with 10 realistic mock messages; switch to live IMAP with a single environment variable.
+- **Prioritization & Rules Engine** â€” Classification, VIP boosts, and user-defined rules sort and filter actionable messages.
 
 ## Tech Stack
 
@@ -37,34 +37,34 @@ Shipped with realistic mock data for immediate evaluation and a one-variable swi
 
 ```
 email-assistant-agent/
-├── services/email/                 # Backend: Python service handlers
-│   ├── run.py                      # /email/run — main SSE entry (fetch→classify→draft→review loop)
-│   ├── review.py                   # /email/review — resume from checkpoint
-│   ├── history.py                  # /email/history — conversation list / get / delete
-│   ├── stop.py                     # /email/stop — abort active run
-│   ├── health.py                   # /email/health — liveness probe + provider info
-│   ├── _graph.py                   # State workflow definition & compilation
-│   ├── _state.py                   # Workspace state definitions
-│   ├── _nodes.py                   # 7 node functions (fetch, classify, prioritize, draft, review, apply, summarize)
-│   ├── _routing.py                 # Conditional edge routing
-│   ├── _crew.py                    # Workflow service adapter
-│   ├── _models.py                  # Domain models (Email, DraftItem, ReviewDecision)
-│   ├── _providers.py               # Email provider protocol + mock + IMAP
-│   ├── _events.py                  # Service event bridge
-│   ├── _llm.py                     # Platform service client initialization
-│   ├── _tools.py                   # Service tools (tone, template, thread context)
-│   ├── _crews/                     # Crew definitions (YAML service + task configs)
-│   ├── fixtures/                   # Mock messages + user_rules.json
-│   ├── skills/                     # Skill definitions (tone, templates, triage rules)
-│   └── prompts/                    # System prompts for workflow nodes
-├── src/                            # Frontend: React + Vite
-│   ├── App.tsx                     # SSE state machine + pipeline reducer
-│   ├── components/                 # ChatLayout, InboxTree, ConversationStream, DraftReviewCard, FlowVisualizer
-│   ├── i18n.tsx                    # Internationalization (zh/en)
-│   └── historyStorage.ts           # localStorage conversation index
-├── edgeone.json                    # Runtime configuration
-├── requirements.txt                # Python dependencies
-└── package.json                    # Frontend build
+â”œâ”€â”€ services/email/                 # Backend: Python service handlers
+â”‚   â”œâ”€â”€ run.py                      # /email/run â€” main SSE entry (fetchâ†’classifyâ†’draftâ†’review loop)
+â”‚   â”œâ”€â”€ review.py                   # /email/review â€” resume from checkpoint
+â”‚   â”œâ”€â”€ history.py                  # /email/history â€” conversation list / get / delete
+â”‚   â”œâ”€â”€ stop.py                     # /email/stop â€” abort active run
+â”‚   â”œâ”€â”€ health.py                   # /email/health â€” liveness probe + provider info
+â”‚   â”œâ”€â”€ _graph.py                   # State workflow definition & compilation
+â”‚   â”œâ”€â”€ _state.py                   # Workspace state definitions
+â”‚   â”œâ”€â”€ _nodes.py                   # 7 node functions (fetch, classify, prioritize, draft, review, apply, summarize)
+â”‚   â”œâ”€â”€ _routing.py                 # Conditional edge routing
+â”‚   â”œâ”€â”€ _crew.py                    # Workflow service adapter
+â”‚   â”œâ”€â”€ _models.py                  # Domain models (Email, DraftItem, ReviewDecision)
+â”‚   â”œâ”€â”€ _providers.py               # Email provider protocol + mock + IMAP
+â”‚   â”œâ”€â”€ _events.py                  # Service event bridge
+â”‚   â”œâ”€â”€ _llm.py                     # Platform service client initialization
+â”‚   â”œâ”€â”€ _tools.py                   # Service tools (tone, template, thread context)
+â”‚   â”œâ”€â”€ _crews/                     # Crew definitions (YAML service + task configs)
+â”‚   â”œâ”€â”€ fixtures/                   # Mock messages + user_rules.json
+â”‚   â”œâ”€â”€ skills/                     # Skill definitions (tone, templates, triage rules)
+â”‚   â””â”€â”€ prompts/                    # System prompts for workflow nodes
+â”œâ”€â”€ src/                            # Frontend: React + Vite
+â”‚   â”œâ”€â”€ App.tsx                     # SSE state machine + pipeline reducer
+â”‚   â”œâ”€â”€ components/                 # ChatLayout, InboxTree, ConversationStream, DraftReviewCard, FlowVisualizer
+â”‚   â”œâ”€â”€ i18n.tsx                    # Internationalization (zh/en)
+â”‚   â””â”€â”€ historyStorage.ts           # localStorage conversation index
+â”œâ”€â”€ edgeone.json                    # Runtime configuration
+â”œâ”€â”€ requirements.txt                # Python dependencies
+â””â”€â”€ package.json                    # Frontend build
 ```
 
 > `services/` is the canonical service directory and corresponds to the former `agents/` location.
@@ -138,7 +138,7 @@ Bind `SERVICE_*` variables in the deployment environment and deploy via EdgeOne 
 
 Vite builds to `dist`. Deploy the frontend to GitHub Pages or any static host; service endpoints run on EdgeOne.
 
-Live Demo: https://gourab775.github.io/email-assistant-agent
+Live Demo: https://email-assistant-agent-nu.vercel.app
 
 ## Customization
 
