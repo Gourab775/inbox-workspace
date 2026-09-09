@@ -2,11 +2,9 @@
 
 Professional full-stack workspace for automated inbox triage, prioritization, and reply drafting with human-in-the-loop approvals, live pipeline visualization, and pluggable email providers.
 
-**Live Demo:** https://inbox-workspace.vercel.app
-
 **Category:** Productivity / Communication
 
-**Stack:** Python Â· React 18 Â· Vite Â· State Workflow Â· Workflow Engine Â· Platform Services
+**Stack:** Python · React 18 · Vite · State Workflow · Workflow Engine · OpenRouter
 
 ## Overview
 
@@ -28,7 +26,7 @@ Shipped with realistic mock data for immediate evaluation and a one-variable swi
 |-------|------------|
 | Frontend | React 18, Vite, TypeScript |
 | Backend | Python 3.11+, State Workflow, Workflow Engine |
-| Services | Platform Services (model gateway) |
+| Services | OpenRouter (OpenAI-compatible LLM gateway) |
 | Streaming | Server-Sent Events (SSE) with update + custom channels |
 | Email | Mock Provider + IMAP Provider |
 | Deployment | EdgeOne / GitHub Pages, Node.js + Python |
@@ -60,7 +58,7 @@ email-assistant-agent/
 â”œâ”€â”€ src/                            # Frontend: React + Vite
 â”‚   â”œâ”€â”€ App.tsx                     # SSE state machine + pipeline reducer
 â”‚   â”œâ”€â”€ components/                 # ChatLayout, InboxTree, ConversationStream, DraftReviewCard, FlowVisualizer
-â”‚   â”œâ”€â”€ i18n.tsx                    # Internationalization (zh/en)
+â”‚   â”œâ”€â”€ i18n.tsx                    # English-only UI strings
 â”‚   â””â”€â”€ historyStorage.ts           # localStorage conversation index
 â”œâ”€â”€ edgeone.json                    # Runtime configuration
 â”œâ”€â”€ requirements.txt                # Python dependencies
@@ -93,15 +91,13 @@ cp .env.example .env
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `SERVICE_API_KEY` | Yes | Platform gateway API key (platform-compatible). |
-| `SERVICE_BASE_URL` | Yes | Gateway base URL, e.g. `https://gateway.edgeone.link/v1` |
-| `SERVICE_MODEL` | No | Model identifier. Defaults to `@makers/deepseek-v4-flash` |
+| `AI_GATEWAY_API_KEY` | Yes | OpenRouter API key (`sk-or-v1-...`). Get one at https://openrouter.ai/keys |
+| `AI_GATEWAY_BASE_URL` | Yes | Gateway base URL, e.g. `https://openrouter.ai/api/v1` |
+| `AI_GATEWAY_MODEL` | No | OpenRouter model id. Defaults to `openai/gpt-4o-mini` |
 | `EMAIL_PROVIDER` | No | `mock` (default) or `imap` |
 | `IMAP_HOST` | No | IMAP hostname (e.g. `imap.gmail.com`) |
 | `IMAP_USER` | No | IMAP login username |
 | `IMAP_APP_PASSWORD` | No | App-specific password |
-
-> Note: `SERVICE_*` is an alias for `AI_GATEWAY_*` for backward compatibility.
 
 ### Development
 
@@ -132,13 +128,11 @@ Configured via `edgeone.json`:
 - `services.runtime`: `python`
 - `services.timeout`: `1800`
 
-Bind `SERVICE_*` variables in the deployment environment and deploy via EdgeOne console or CLI.
+Bind `AI_GATEWAY_*` variables in the deployment environment and deploy via EdgeOne console or CLI.
 
 ### GitHub Pages / Static Hosting
 
 Vite builds to `dist`. Deploy the frontend to GitHub Pages or any static host; service endpoints run on EdgeOne.
-
-Live Demo: https://inbox-workspace.vercel.app
 
 ## Customization
 

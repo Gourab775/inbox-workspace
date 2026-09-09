@@ -94,17 +94,17 @@ def test_meeting_invite_has_ics_flag():
 def test_threading_uses_references_when_present():
     inbox = asyncio.run(MockProvider().fetch_inbox())
     # 06-followup.eml has References + In-Reply-To headers
-    followup = next((e for e in inbox if "二次跟进" in e.subject), None)
+    followup = next((e for e in inbox if "Follow-up" in e.subject), None)
     assert followup is not None
     assert followup.thread_id is not None
     assert followup.thread_id.startswith("thr_")
 
 
-def test_chinese_subject_and_body_decoded():
+def test_leave_subject_and_body_decoded():
     inbox = asyncio.run(MockProvider().fetch_inbox())
-    leave = next((e for e in inbox if "请假" in e.subject), None)
+    leave = next((e for e in inbox if "Thursday" in e.subject), None)
     assert leave is not None
-    assert "请假" in leave.body_text
+    assert "Thursday" in leave.body_text
     assert "Lily" in leave.sender or "lily" in leave.sender
 
 
@@ -188,7 +188,7 @@ def test_load_user_rules_from_fixture():
     assert "vipcustomer.com" in rules.vip_domains
     assert "news@tool.io" in rules.auto_archive
     assert rules.signature  # non-empty
-    assert rules.language == "zh-CN"
+    assert rules.language == "en"
 
 
 # ─── Factory ─────────────────────────────────────────────────────────────────

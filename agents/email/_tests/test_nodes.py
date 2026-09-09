@@ -591,7 +591,7 @@ def test_prioritize_single_reply_unknown_id_returns_empty():
     # Should mention the target id and point the user to a fix
     err = result["errors"][0]
     assert "nonexistent" in err
-    assert "强制刷新" in err
+    assert "Force Refresh" in err
 
 
 def test_prioritize_other_tasks_ignore_target_email_id():

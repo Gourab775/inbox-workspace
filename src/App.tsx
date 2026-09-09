@@ -21,7 +21,7 @@ import ConversationStream, {
   StreamMessage,
   StreamMessageKind,
 } from './components/ConversationStream';
-import DeployButton, { GitHubButton } from './components/DeployFAB';
+import { GitHubButton } from './components/DeployFAB';
 import EmailDetailDrawer from './components/EmailDetailDrawer';
 import EmailInboxTree from './components/EmailInboxTree';
 import HistorySidebar from './components/HistorySidebar';
@@ -480,13 +480,12 @@ function errorStuckNode(
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function App() {
-  const { t, locale, toggleLocale } = useI18n();
+  const { t } = useI18n();
   const [messages, setMessages] = useState<StreamMessage[]>([]);
   const [pending, setPending] = useState<PendingDraft | null>(null);
   const [running, setRunning] = useState(false);
   const [pipeline, dispatchPipeline] = useReducer(pipelineReducer, INITIAL_PIPELINE);
-  // Keep the browser tab title in sync with the UI locale (index.html ships
-  // a neutral English title; zh users get the Chinese one once React mounts).
+  // Keep the browser tab title in sync (English-only UI).
   useEffect(() => {
     document.title = `${t('appTitle')} · ${t('appSubtitle')} | EdgeOne Makers`;
   }, [t]);
@@ -834,7 +833,7 @@ export default function App() {
         for await (const frame of runEmailAssistant({
           task,
           conversationId: cid,
-          locale,
+          locale: 'en',
           preloadedClassified: cached as unknown[] | undefined,
           targetEmailId: opts?.targetEmailId,
           skipEmailIds: skipIds,
@@ -863,7 +862,6 @@ export default function App() {
     [
       addMessage,
       handleFrame,
-      locale,
       t,
       pipeline.classified,
       pipeline.doneEmailIds,
@@ -1249,7 +1247,7 @@ export default function App() {
       try {
         const controller = new AbortController();
         abortControllerRef.current = controller;
-        for await (const frame of submitReview({ conversationId: cid, decision, locale, signal: controller.signal })) {
+        for await (const frame of submitReview({ conversationId: cid, decision, locale: 'en', signal: controller.signal })) {
           handleFrame(frame);
         }
       } catch (e) {
@@ -1261,7 +1259,7 @@ export default function App() {
         setRunning(false);
       }
     },
-    [addMessage, handleFrame, locale, t, pending],
+    [addMessage, handleFrame, t, pending],
   );
 
   const nodeStatusesForViz = useMemo(
@@ -1294,18 +1292,9 @@ export default function App() {
               </span>
             </div>
           </div>
-          {/* Language toggle + Deploy + GitHub */}
+          {/* GitHub source link */}
           <div style={{ display: 'flex', alignItems: 'center', gap: tokens.space[2] }}>
-            <DeployButton />
             <GitHubButton />
-            <button
-              type="button"
-              onClick={toggleLocale}
-              style={langToggleBtn}
-              title="Switch language / 切换语言"
-            >
-              {locale === 'zh' ? 'EN' : '中文'}
-            </button>
             <RuntimeStatusChip
             running={running}
             paused={!!pending}
@@ -1665,19 +1654,7 @@ const historyToggleBtn: React.CSSProperties = {
   lineHeight: 1.2,
 };
 
-const langToggleBtn: React.CSSProperties = {
-  padding: '5px 10px',
-  borderRadius: tokens.radius.md,
-  border: `1px solid ${tokens.color.border}`,
-  background: tokens.color.bg,
-  color: tokens.color.textMuted,
-  fontSize: tokens.fontSize.xs,
-  fontWeight: tokens.fontWeight.medium,
-  cursor: 'pointer',
-  lineHeight: 1.2,
-};
-
-/** "新会话" — minimal brand tint. */
+/** "New Session" button — minimal brand tint. */
 const newSessionBtn: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',

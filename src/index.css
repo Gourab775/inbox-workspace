@@ -156,7 +156,7 @@ input:focus {
 }
 
 /* Resize handle between inbox and main columns */
-[title="拖拽调整宽度"]:hover {
+[title="Drag to resize"]:hover {
   background: #e5e5e5;
 }
 

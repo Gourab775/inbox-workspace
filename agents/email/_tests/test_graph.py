@@ -288,7 +288,7 @@ def test_fallback_summary_empty_inbox():
                                          "prioritized": 0, "drafts": 0,
                                          "decisions": 0, "actions": 0},
                               "top": [], "decisions": [], "actions": []})
-    assert "今日无新邮件" in out
+    assert "No new emails today" in out
 
 
 def test_fallback_summary_includes_top_emails():
@@ -327,21 +327,40 @@ def test_summary_payload_extracts_counts_and_top5():
 
 
 def test_summarize_with_llm_returns_text():
-    class FakeChat:
+    """The fake streams delta chunks like a real OpenAI ``stream=True``
+    response (``choices[0].delta.content``), so this exercises the token
+    accumulation path — not the fallback."""
+    class FakeDelta:
         def __init__(self, content):
-            class _C:
-                class _M:
-                    pass
-                message = _M()
-                message.content = content
-            self.choices = [_C()]
+            self.content = content
+
+    class FakeChoice:
+        def __init__(self, content):
+            self.delta = FakeDelta(content)
+
+    class FakeChunk:
+        def __init__(self, content):
+            self.choices = [FakeChoice(content)]
+
+    class FakeStream:
+        def __init__(self, text):
+            self._text = text
+
+        def __aiter__(self):
+            async def _gen():
+                mid = len(self._text) // 2
+                yield FakeChunk(self._text[:mid])
+                yield FakeChunk(self._text[mid:])
+            return _gen()
 
     class FakeCompletions:
         def __init__(self):
             self.calls = []
+
         async def create(self, **kwargs):
             self.calls.append(kwargs)
-            return FakeChat("## 概览\n- 收件箱 3 封")
+            assert kwargs.get("stream") is True
+            return FakeStream("## Overview\n- Inbox 3 emails")
 
     class FakeChat2:
         def __init__(self):
@@ -355,7 +374,9 @@ def test_summarize_with_llm_returns_text():
              "prioritized": [], "drafts": [], "review_decisions": [], "final_actions": []}
     client = FakeClient()
     out = asyncio.run(summarize(state, openai_client=client, model="m"))
-    assert "概览" in out["summary"]
+    assert "Overview" in out["summary"]
+    assert "Inbox 3 emails" in out["summary"]
+    assert "errors" not in out
     # W2 D4: summarize injects the email-tone Skill into its system prompt
     system_msg = client.chat.completions.calls[0]["messages"][0]["content"]
     assert "Skill: email-tone" in system_msg or "summarizer of an email assistant" in system_msg
@@ -373,7 +394,7 @@ def test_summarize_llm_failure_falls_back():
     state = {"inbox": [_make_email("a")], "classified": [], "prioritized": [],
              "drafts": [], "review_decisions": [], "final_actions": []}
     out = asyncio.run(summarize(state, openai_client=FailingClient(), model="m"))
-    assert "概览" in out["summary"]
+    assert "Overview" in out["summary"]
     assert "errors" in out
     assert "gateway down" in out["errors"][0]
 
@@ -395,12 +416,12 @@ def test_summarize_empty_response_falls_back():
              "drafts": [], "review_decisions": [], "final_actions": []}
     out = asyncio.run(summarize(state, openai_client=EmptyClient(), model="m"))
     # Falls back to deterministic summary
-    assert "概览" in out["summary"]
+    assert "Overview" in out["summary"]
     assert "errors" in out
 
 
 def test_summarize_single_reply_returns_empty_no_llm_call():
-    """single_reply scopes to one email — a "今日摘要" bubble would be
+    """single_reply scopes to one email — a "daily digest" bubble would be
     misleading. Summarize must return empty AND not call the LLM."""
     class TrackingClient:
         def __init__(self):
@@ -487,4 +508,4 @@ def test_graph_runs_pipeline_through_summarize_with_no_inbox():
 
     result = asyncio.run(_run())
     assert "summary" in result
-    assert "概览" in result["summary"]
+    assert "Overview" in result["summary"]

@@ -68,7 +68,7 @@ async def save_message(context, role: str, content: str, metadata: dict | None =
         pass
 
 
-def task_label(task: str, locale: str = "zh") -> str:
+def task_label(task: str, locale: str = "en") -> str:
     """Friendly label for a task id (used as the conversation title)."""
     return tr(locale, _TASK_LABEL.get(task, task))
 
@@ -111,7 +111,7 @@ async def _maybe_set_title_first_run(context, cid: str, title: str) -> None:
         pass
 
 
-def draft_preview(draft_payload: dict, locale: str = "zh") -> str:
+def draft_preview(draft_payload: dict, locale: str = "en") -> str:
     """Format a HITL draft as a multi-line preview suitable for chat history.
 
     The full draft body can be hundreds of chars; we cap at ~600 to keep the

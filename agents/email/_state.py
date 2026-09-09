@@ -36,9 +36,9 @@ class EmailAssistantState(TypedDict, total=False):
     # ─── Inputs ───
     task: TaskMode
     user_rules: list[UserRule]
-    # UI locale ("zh" | "en") sent by the frontend. Drives all user-visible
+    # UI locale ("en") sent by the frontend. Drives all user-visible
     # narration strings (_i18n.tr) and the language instruction the draft /
-    # summarize prompts hand to the LLM. Defaults to "zh" when absent (local
+    # summarize prompts hand to the LLM. Defaults to "en" when absent (local
     # CLI runs, direct unit-test calls).
     locale: str
     # When ``task == "single_reply"``, restrict the draft loop to a single

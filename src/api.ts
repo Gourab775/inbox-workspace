@@ -22,10 +22,10 @@ export interface RunEmailOptions {
   task: RunTask;
   conversationId: string;
   signal?: AbortSignal;
-  /** UI locale ("zh" | "en") from useI18n(). The backend uses it to pick
-   * the reply-draft language, the digest language, and all SSE narration
-   * strings, so the agent's output always matches what the user sees. */
-  locale: 'zh' | 'en';
+  /** UI locale — always 'en' (the UI is English-only). The backend uses it
+   * to pick the reply-draft language, the digest language, and all SSE
+   * narration strings, so the agent's output always matches what the user sees. */
+  locale: 'en';
   /**
    * Optional snapshot of a previously-classified inbox. When present, the
    * backend ``fetch`` and ``classify`` nodes short-circuit, saving one IMAP
@@ -58,9 +58,9 @@ export interface SubmitReviewOptions {
   conversationId: string;
   decision: ReviewDecisionInput;
   signal?: AbortSignal;
-  /** UI locale — drives the decision/draft-preview labels review.py writes
-   * into chat history. */
-  locale: 'zh' | 'en';
+  /** UI locale — always 'en'. Drives the decision/draft-preview labels
+   * review.py writes into chat history. */
+  locale: 'en';
 }
 
 export async function* runEmailAssistant(opts: RunEmailOptions): AsyncGenerator<SSEFrame> {

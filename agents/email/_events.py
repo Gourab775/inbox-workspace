@@ -99,7 +99,7 @@ class CrewProgressBridge:
         writer: Callable[[dict], None],
         *,
         email_subject: str = "",
-        locale: str = "zh",
+        locale: str = "en",
     ) -> None:
         self._loop = loop
         self._writer = writer

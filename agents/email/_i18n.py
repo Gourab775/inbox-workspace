@@ -1,19 +1,18 @@
 """Backend i18n for user-visible strings (SSE narration, labels, previews).
 
-The frontend sends ``locale`` ("zh" | "en") in the /email/run and
+English-only: the frontend sends ``locale: "en"`` in the /email/run and
 /email/review request bodies; run.py stores it in the LangGraph state and
 every node looks its strings up here via ``tr(locale, key, **kwargs)``.
-
-Default locale is "zh" so direct unit-test calls (whose state dicts carry
-no ``locale``) and local CLI runs keep the previous behavior.
+``normalize_locale`` coerces anything else to "en" so old clients/tests
+with no locale keep working.
 """
 from __future__ import annotations
 
-DEFAULT_LOCALE = "zh"
-VALID_LOCALES = ("zh", "en")
+DEFAULT_LOCALE = "en"
+VALID_LOCALES = ("en",)
 
 # locale → natural-language name injected into LLM prompts ("Reply in …").
-LANGUAGE_NAME = {"zh": "Simplified Chinese", "en": "English"}
+LANGUAGE_NAME = {"en": "English"}
 
 
 def normalize_locale(value: object) -> str:
@@ -22,73 +21,6 @@ def normalize_locale(value: object) -> str:
 
 
 _STRINGS: dict[str, dict[str, str]] = {
-    "zh": {
-        # ── fetch ──
-        "fetch_cached": "⚡ 复用缓存的 {n} 封邮件 (跳过抓取)",
-        "fetch_started": "📥 正在从邮箱拉取最新邮件…",
-        "fetch_done": "📥 拉取完成 · {n} 封待分类",
-        "fetch_archived": " · 自动归档 {n} 封",
-        # ── classify ──
-        "classify_cached": "⚡ 复用缓存的分类结果 (跳过 LLM)",
-        "classify_started": "🧠 LLM 正在分类 {n} 封邮件… (单次批量调用)",
-        "classify_failed": "❌ 分类失败:{err}",
-        "classify_unparsed": "❌ 分类输出无法解析",
-        "classify_done": "✅ 分类完成 · {n} 封已贴标签",
-        # ── prioritize ──
-        "prioritize_started": "📊 应用规则与排序…",
-        "prioritize_done": "📊 排序完成 · 待处理 {n} 封",
-        "prioritize_empty": "📊 排序完成 · 没有需要回复的",
-        "prioritize_target_missing": (
-            "指定的邮件 {id} 不在当前收件箱里 — 缓存可能过期,试试上方「强制刷新」"
-        ),
-        # ── draft ──
-        "draft_started": "🤖 三人小组开始为「{subject}」起草回复",
-        "draft_started_feedback": " · 应用了你的修改建议",
-        "no_subject": "(无主题)",
-        "draft_error": "❌ Crew 报错:{err}",
-        "draft_done": "✅ 草稿就绪 · {n} 字 · 等你审批",
-        "placeholder_body": (
-            "(草稿生成失败 — LLM 没拿到有效的邮件上下文。请点 ↻ 重写,或检查 "
-            "_tasks.py / _crew.py 的 inputs 传递是否完整。)"
-        ),
-        # ── CrewProgressBridge narration ──
-        "agent_analyst": "🔍 分析师在读邮件",
-        "agent_writer": "✍️ 撰稿员在起草",
-        "agent_polisher": "🎨 润色员在调整语气",
-        "task_analyze": "分析邮件意图",
-        "task_draft": "草拟回复正文",
-        "task_polish": "应用语气与签名",
-        "step_prefix": "步骤:{label}",
-        "complete_prefix": "完成:{label}",
-        "task_fallback": "(任务)",
-        # ── summarize ──
-        "summarize_started": "📝 LLM 正在生成日报… (基于 {n} 条决策)",
-        "summarize_failed": "⚠ 摘要生成失败,使用降级模板:{err}",
-        "summarize_empty": "⚠ LLM 返回空摘要,使用降级模板",
-        "summarize_done": "✅ 日报生成完成 · {n} 字",
-        # ── fallback summary ──
-        "fb_no_mail": "## 概览\n\n今日无新邮件。",
-        "fb_overview": "## 概览",
-        "fb_inbox_total": "- 收件箱总数:{n}",
-        "fb_classified": "- 已分类:{n} 封",
-        "fb_drafted": "- 已生成草稿:{n} 封",
-        "fb_decisions": "- 决策数:{n}",
-        "fb_actions": "- 已执行动作:{n}",
-        "fb_attention": "## 需要关注的",
-        "fb_decided": "## 本次决定",
-        # ── run.py task labels ──
-        "task_triage_only": "仅分类邮件",
-        "task_daily_digest": "处理待回邮件",
-        "task_single_reply": "单独处理某封邮件",
-        "draft_preview_prefix": "📨 请审批: {subject}",
-        # ── review.py decision labels ──
-        "review_approve": "✓ 通过",
-        "review_edit": "✏️ 用我改的版本",
-        "review_reject": "✗ 不回复",
-        "review_regenerate": "↻ 重写",
-        "review_skip": "↦ 跳过",
-        "review_edited_body": "(改了正文)",
-    },
     "en": {
         # ── fetch ──
         "fetch_cached": "⚡ Reusing {n} cached emails (fetch skipped)",

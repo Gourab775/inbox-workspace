@@ -58,10 +58,10 @@ def _resolve_model() -> str:
 def _supports_structured_output(model: str | None) -> bool:
     """Whether the model accepts ``response_format`` with a JSON schema.
 
-    The AI Gateway's DeepSeek mapping rejects ``json_schema`` (used by
-    ``output_pydantic`` / structured output) with 400001. Other models such
-    as ``@makers/hy3`` accept it. When in doubt, be conservative and keep
-    structured output enabled.
+    Some gateway model mappings reject ``json_schema`` (used by
+    ``output_pydantic`` / structured output) with a 400 error, while most
+    mainstream models accept it. Known-bad families are excluded by name.
+    When in doubt, be conservative and keep structured output enabled.
     """
     name = (model or "").lower()
     return "deepseek" not in name

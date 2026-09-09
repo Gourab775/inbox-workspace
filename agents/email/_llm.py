@@ -1,4 +1,5 @@
-"""LLM factory — bridges the platform AI Gateway to both frameworks.
+"""LLM factory — bridges an OpenAI-compatible gateway (OpenRouter by default)
+to both frameworks.
 
 The template uses two LLM client types depending on context:
 
@@ -13,11 +14,11 @@ The template uses two LLM client types depending on context:
 
 Both share the same env vars:
 
-  - ``AI_GATEWAY_API_KEY``
-  - ``AI_GATEWAY_BASE_URL``
+  - ``AI_GATEWAY_API_KEY``  (an OpenRouter API key, ``sk-or-v1-...``)
+  - ``AI_GATEWAY_BASE_URL`` (``https://openrouter.ai/api/v1``)
 
-The default model matches the sibling templates so platform-wide
-model strategy stays unified.
+The default model is an OpenRouter model id, overridable via
+``AI_GATEWAY_MODEL``.
 
 Imports are deferred so unit tests that only touch parsing / state don't
 pull in ``crewai`` or ``openai`` (heavy install).
@@ -29,9 +30,9 @@ from typing import Any, Mapping
 
 REQUIRED_ENV = ("AI_GATEWAY_API_KEY", "AI_GATEWAY_BASE_URL")
 
-# Default model — overridable via AI_GATEWAY_MODEL env var. Falls back to the
-# platform's built-in free model when the variable isn't set.
-_FALLBACK_MODEL = "@makers/deepseek-v4-flash"
+# Default model — overridable via AI_GATEWAY_MODEL env var. Must be a valid
+# OpenRouter model id (see https://openrouter.ai/models).
+_FALLBACK_MODEL = "openai/gpt-4o-mini"
 DEFAULT_MODEL = _FALLBACK_MODEL  # resolved at runtime in get_env()
 
 GATEWAY_HEADERS: dict[str, str] = {}
@@ -99,13 +100,17 @@ def _ensure_singletons_for(env: Mapping[str, str]) -> None:
 def get_crewai_llm(
     env: Mapping[str, str],
     *,
-    model: str = DEFAULT_MODEL,
+    model: str | None = None,
     temperature: float = 0.3,
     timeout: int = 300,
     extra_headers: dict[str, str] | None = None,
 ) -> Any:
-    """CrewAI ``LLM`` bound to AI Gateway. Module-level singleton — first call
+    """CrewAI ``LLM`` bound to the gateway. Module-level singleton — first call
     initializes from env, subsequent calls return the cached instance.
+
+    ``model`` defaults to the runtime ``DEFAULT_MODEL`` (resolved lazily here
+    — NOT as a default arg — so an ``AI_GATEWAY_MODEL`` override picked up by
+    ``get_env()`` is honored even though this module was imported earlier).
 
     Used inside ``_crew.EmailDraftCrew`` for the three-role draft pipeline.
     See sibling template ``_llm.py`` for the rationale of ``provider='openai'``.
@@ -117,11 +122,12 @@ def get_crewai_llm(
 
     from crewai import LLM  # deferred — keep parsing tests light
 
+    resolved_model = model or DEFAULT_MODEL
     headers = dict(GATEWAY_HEADERS)
     if extra_headers:
         headers.update(extra_headers)
     _crewai_llm_singleton = LLM(
-        model=model,
+        model=resolved_model,
         provider="openai",
         api_key=env["AI_GATEWAY_API_KEY"],
         base_url=env["AI_GATEWAY_BASE_URL"],

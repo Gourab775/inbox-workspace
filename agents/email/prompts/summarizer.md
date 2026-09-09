@@ -21,7 +21,7 @@ Goes into `state.summary` and is also surfaced via SSE `event="done"`.
 
 ## Tone
 
-Concise, business-friendly, in `user_rules.language` (default `zh-CN`).
+Concise, business-friendly, in `user_rules.language` (default `en`).
 Don't repeat the per-email reasoning verbatim — that's already in `state.classified`.
 
 ## Output

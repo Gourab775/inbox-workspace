@@ -1,54 +1,9 @@
 /**
- * DeployButton + GitHubButton — inline header buttons.
- *
- * DeployButton: follows the page's locale (zh/en) via useI18n().
- * Determines deploy URL based on the current hostname:
- *   - *.edgeone.dev → international (edgeone.ai)
- *   - otherwise     → Tencent Cloud console
- *
- * GitHubButton: static link to the source repo.
+ * GitHubButton — inline header button linking to this project's source repo.
  */
-import { useCallback } from 'react';
 import { tokens } from '../design-tokens';
-import { useI18n } from '../i18n';
 
-const TEMPLATE_NAME = 'email-assistant-agent';
-const GITHUB_URL = 'https://github.com/TencentEdgeOne/email-assistant-agent';
-
-const EDGEONE_AI_DEPLOY_URL = `https://edgeone.ai/makers/new?template=${TEMPLATE_NAME}&from=within&fromAgent=1&agentLang=python`;
-const TENCENT_CLOUD_DEPLOY_URL = `https://console.cloud.tencent.com/edgeone/makers/new?template=${TEMPLATE_NAME}&from=within&fromAgent=1&agentLang=python`;
-
-function getDeployUrl(): string {
-  if (typeof window === 'undefined') return TENCENT_CLOUD_DEPLOY_URL;
-  const hostname = window.location.hostname;
-  const parts = hostname.split('.');
-  const domain = parts.slice(1).join('.');
-  return domain === 'edgeone.dev' ? EDGEONE_AI_DEPLOY_URL : TENCENT_CLOUD_DEPLOY_URL;
-}
-
-export default function DeployButton() {
-  const { locale } = useI18n();
-
-  const handleDeploy = useCallback(() => {
-    window.open(getDeployUrl(), '_blank');
-  }, []);
-
-  const label = locale === 'zh' ? '一键部署' : 'Deploy';
-
-  return (
-    <button
-      type="button"
-      onClick={handleDeploy}
-      style={deployBtnStyle}
-      title={locale === 'zh' ? '部署到 EdgeOne Makers' : 'Deploy to EdgeOne Makers'}
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
-      </svg>
-      <span>{label}</span>
-    </button>
-  );
-}
+const GITHUB_URL = 'https://github.com/Gourab775/inbox-workspace';
 
 export function GitHubButton() {
   return (
@@ -65,23 +20,6 @@ export function GitHubButton() {
     </a>
   );
 }
-
-const deployBtnStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 5,
-  padding: '6px 14px',
-  borderRadius: tokens.radius.md,
-  fontSize: tokens.fontSize.sm,
-  fontWeight: tokens.fontWeight.semibold,
-  color: '#ffffff',
-  background: tokens.color.brand,
-  border: 'none',
-  cursor: 'pointer',
-  lineHeight: 1.2,
-  whiteSpace: 'nowrap',
-  flexShrink: 0,
-};
 
 const githubBtnStyle: React.CSSProperties = {
   display: 'inline-flex',

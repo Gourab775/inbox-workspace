@@ -76,7 +76,7 @@ def test_real_subject_left_alone():
 
 def test_subject_when_original_also_empty():
     out = _normalize_draft(_draft(subject=""), _ce(subject=""))
-    assert out.subject == "Re: (无主题)"
+    assert out.subject == "Re: (no subject)"
 
 
 # ─── body patching ──────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ def test_subject_when_original_also_empty():
 
 def test_empty_body_gets_placeholder():
     out = _normalize_draft(_draft(body=""), _ce())
-    assert "草稿生成失败" in out.body
+    assert "Draft generation failed" in out.body
     # Other fields preserved
     assert out.email_id == "m1"
     assert out.subject == "Re: Production 500"
@@ -92,7 +92,7 @@ def test_empty_body_gets_placeholder():
 
 def test_whitespace_only_body_gets_placeholder():
     out = _normalize_draft(_draft(body="   \n  "), _ce())
-    assert "草稿生成失败" in out.body
+    assert "Draft generation failed" in out.body
 
 
 # ─── email_id / to patching ─────────────────────────────────────────────────
@@ -127,7 +127,7 @@ def test_multiple_problems_all_fixed_at_once():
         _ce(subject="Q3 报告", sender="boss@company.com"),
     )
     assert out.subject == "Re: Q3 报告"
-    assert "草稿生成失败" in out.body
+    assert "Draft generation failed" in out.body
     assert out.to == ["boss@company.com"]
     assert out.email_id == "m1"
 

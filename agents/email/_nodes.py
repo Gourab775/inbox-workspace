@@ -129,7 +129,7 @@ async def fetch(
     ``summarize``) still get a correct value.
     """
     write = _writer()
-    locale = state.get("locale", "zh")
+    locale = state.get("locale", "en")
     pre = state.get("classified") or []
     if pre:
         # ``_cached`` is a transient signal for the SSE stream — the frontend
@@ -264,7 +264,7 @@ async def classify(
     fetch+classify pair is ~15-20s and ~10 LLM calls otherwise.
     """
     write = _writer()
-    locale = state.get("locale", "zh")
+    locale = state.get("locale", "en")
 
     if state.get("classified"):
         # Same ``_cached`` flag as fetch — gives the frontend something to
@@ -377,7 +377,7 @@ async def prioritize(
     write({
         "phase": "prioritize",
         "stage": "started",
-        "message": tr(state.get("locale", "zh"), "prioritize_started"),
+        "message": tr(state.get("locale", "en"), "prioritize_started"),
     })
 
     task = state.get("task")
@@ -425,7 +425,7 @@ async def prioritize(
             # email isn't in the (possibly cached) classified set. Surface a
             # concrete next step rather than silently routing to summarize.
             reason = tr(
-                state.get("locale", "zh"),
+                state.get("locale", "en"),
                 "prioritize_target_missing",
                 id=target_id or "(no id)",
             )
@@ -439,9 +439,9 @@ async def prioritize(
         "phase": "prioritize",
         "stage": "completed",
         "message": (
-            tr(state.get("locale", "zh"), "prioritize_done", n=len(keep))
+            tr(state.get("locale", "en"), "prioritize_done", n=len(keep))
             if keep
-            else tr(state.get("locale", "zh"), "prioritize_empty")
+            else tr(state.get("locale", "en"), "prioritize_empty")
         ),
     })
 
@@ -473,7 +473,7 @@ async def draft_with_crew(state: EmailAssistantState, *, llm) -> dict:
     润色员在调整语气" narration as each agent runs.
     """
     write = _writer()
-    locale = state.get("locale", "zh")
+    locale = state.get("locale", "en")
     prioritized = state.get("prioritized") or []
     cursor = state.get("cursor", 0)
     if cursor >= len(prioritized):
@@ -657,7 +657,7 @@ def _strip_email_markdown(body: str) -> str:
     return cleaned.strip()
 
 
-def _normalize_draft(draft: DraftItem, ce: ClassifiedEmail, *, locale: str = "zh") -> DraftItem:
+def _normalize_draft(draft: DraftItem, ce: ClassifiedEmail, *, locale: str = "en") -> DraftItem:
     """Apply post-LLM safety nets so the UI never shows broken drafts.
 
     The polisher LLM occasionally returns:
@@ -1043,7 +1043,7 @@ async def summarize(
     if state.get("task") == "single_reply":
         return {"summary": ""}
 
-    locale = state.get("locale", "zh")
+    locale = state.get("locale", "en")
     payload = _summary_payload(state)
     fallback = _fallback_summary(payload, locale=locale)
 
@@ -1163,7 +1163,7 @@ def _summary_payload(state: EmailAssistantState) -> dict:
     }
 
 
-def _fallback_summary(payload: dict, *, locale: str = "zh") -> str:
+def _fallback_summary(payload: dict, *, locale: str = "en") -> str:
     c = payload["counts"]
     if c["inbox"] == 0:
         return tr(locale, "fb_no_mail")
