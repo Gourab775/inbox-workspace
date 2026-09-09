@@ -15,8 +15,70 @@
  *   data: "[DONE]"
  */
 import type { ReviewDecisionInput, RunTask, SSEFrame } from './types';
+import {
+  deleteDemoConversation,
+  getDemoConversation,
+  listDemoConversations,
+  reviewDemo,
+  runDemo,
+} from './demoBackend';
+import { getLocalConversations } from './historyStorage';
 
 export type { SSEFrame };
+
+/** Optional backend origin (e.g. a deployed EdgeOne service). Set via
+ * ``VITE_API_BASE_URL`` at build time. Empty = same origin. */
+const API_BASE = (
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) || ''
+).replace(/\/$/, '');
+
+function apiPath(path: string): string {
+  return `${API_BASE}${path}`;
+}
+
+// ─── Backend availability probe + demo-mode routing ─────────────────────────
+//
+// Static hosts (Vercel, GitHub Pages) serve only the built frontend — there
+// is no Python runtime for ``/email/*``. On boot we probe ``/email/health``;
+// when it doesn't answer, every API below transparently switches to the
+// in-browser demo engine (``demoBackend.ts``), which speaks the same SSE
+// protocol. When a real backend IS reachable (same-origin EdgeOne full-stack
+// or ``VITE_API_BASE_URL``), it is used untouched.
+
+let _backendReachable: boolean | null = null;
+let _probeInflight: Promise<boolean> | null = null;
+
+function probeBackend(): Promise<boolean> {
+  if (_backendReachable !== null) return Promise.resolve(_backendReachable);
+  if (_probeInflight) return _probeInflight;
+  _probeInflight = (async () => {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 5000);
+      const res = await fetch(apiPath('/email/health'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'makers-conversation-id': crypto.randomUUID(),
+        },
+        body: '{}',
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      _backendReachable = res.ok;
+    } catch {
+      _backendReachable = false;
+    }
+    return _backendReachable;
+  })();
+  return _probeInflight;
+}
+
+/** True once the probe determined no backend is reachable — the UI runs on
+ * the in-browser demo engine. Call after ``getEmailProvider()`` resolved. */
+export function isDemoMode(): boolean {
+  return _backendReachable === false;
+}
 
 export interface RunEmailOptions {
   task: RunTask;
@@ -64,6 +126,18 @@ export interface SubmitReviewOptions {
 }
 
 export async function* runEmailAssistant(opts: RunEmailOptions): AsyncGenerator<SSEFrame> {
+  if (!(await probeBackend())) {
+    yield* runDemo({
+      task: opts.task,
+      conversationId: opts.conversationId,
+      signal: opts.signal,
+      preloadedClassified: opts.preloadedClassified,
+      targetEmailId: opts.targetEmailId,
+      skipEmailIds: opts.skipEmailIds,
+      forceRefresh: opts.forceRefresh,
+    });
+    return;
+  }
   const body: Record<string, unknown> = { task: opts.task, locale: opts.locale };
   if (opts.preloadedClassified && opts.preloadedClassified.length > 0) {
     body.preloaded_classified = opts.preloadedClassified;
@@ -81,6 +155,14 @@ export async function* runEmailAssistant(opts: RunEmailOptions): AsyncGenerator<
 }
 
 export async function* submitReview(opts: SubmitReviewOptions): AsyncGenerator<SSEFrame> {
+  if (!(await probeBackend())) {
+    yield* reviewDemo({
+      conversationId: opts.conversationId,
+      decision: opts.decision,
+      signal: opts.signal,
+    });
+    return;
+  }
   // Backend expects ``decision`` field name; ReviewDecisionInput already has ``action`` etc.
   // Map ``action`` → ``decision`` for the wire format consumed by review.py.
   const { action, edited_body, feedback } = opts.decision;
@@ -122,7 +204,8 @@ async function jsonOrThrow(res: Response, label: string): Promise<unknown> {
  * via ``request.signal`` and bails. Idempotent: returns ``status=idle`` if
  * nothing is running. */
 export async function stopRun(conversationId: string): Promise<{ status: string }> {
-  const res = await fetch('/email/stop', {
+  if (!(await probeBackend())) return { status: 'idle' };
+  const res = await fetch(apiPath('/email/stop'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -196,7 +279,7 @@ async function postHistory(body: Record<string, unknown>, conversationId?: strin
     'Content-Type': 'application/json',
     'makers-conversation-id': conversationId || crypto.randomUUID(),
   };
-  const res = await fetch('/email/history', {
+  const res = await fetch(apiPath('/email/history'), {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
@@ -205,6 +288,33 @@ async function postHistory(body: Record<string, unknown>, conversationId?: strin
 }
 
 export async function listConversations(opts?: { force?: boolean }): Promise<ConversationListItem[]> {
+  if (!(await probeBackend())) {
+    // Demo mode: merge the local sidebar index (titles) with demo snapshots
+    // (message counts). No caching — localStorage reads are synchronous.
+    const local = new Map(getLocalConversations().map((c) => [c.id, c]));
+    const out: ConversationListItem[] = [];
+    for (const snap of listDemoConversations()) {
+      const row = local.get(snap.id);
+      out.push({
+        id: snap.id,
+        title: row?.title ?? snap.title,
+        createdAt: snap.createdAt,
+        lastMessageAt: snap.lastMessageAt,
+        messageCount: snap.messageCount,
+      });
+      local.delete(snap.id);
+    }
+    for (const row of local.values()) {
+      out.push({
+        id: row.id,
+        title: row.title,
+        createdAt: row.createdAt,
+        lastMessageAt: row.updatedAt,
+        messageCount: 0,
+      });
+    }
+    return out.sort((a, b) => b.lastMessageAt - a.lastMessageAt);
+  }
   if (!opts?.force && _cache && Date.now() - _cache.ts < CACHE_TTL_MS) {
     return _cache.items;
   }
@@ -251,17 +361,29 @@ export function invalidateConversationCache(): void {
 }
 
 export async function getConversation(id: string): Promise<ConversationDetail> {
+  if (!(await probeBackend())) {
+    return (
+      getDemoConversation(id) ?? { id, messages: [], state: null, nextNodes: [] }
+    );
+  }
   return (await postHistory({ action: 'get', id }, id)) as ConversationDetail;
 }
 
 export async function deleteConversation(id: string): Promise<{ deleted: boolean }> {
+  if (!(await probeBackend())) {
+    return { deleted: deleteDemoConversation(id) };
+  }
   return (await postHistory({ action: 'delete', id }, id)) as { deleted: boolean };
 }
 
-/** Fetch the health endpoint to detect current email provider (mock/imap/gmail). */
+/** Fetch the health endpoint to detect current email provider (mock/imap/gmail).
+ * Also runs the one-time backend availability probe: when the health check
+ * fails, the app transparently switches to demo mode (see above). */
 export async function getEmailProvider(): Promise<string> {
+  const reachable = await probeBackend();
+  if (!reachable) return 'mock';
   try {
-    const res = await fetch('/email/health', {
+    const res = await fetch(apiPath('/email/health'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

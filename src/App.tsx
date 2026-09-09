@@ -26,11 +26,14 @@ import EmailDetailDrawer from './components/EmailDetailDrawer';
 import EmailInboxTree from './components/EmailInboxTree';
 import HistorySidebar from './components/HistorySidebar';
 import NodeFlowVisualizer from './components/NodeFlowVisualizer';
+import TourGuide, { TOUR_SEEN_KEY } from './components/TourGuide';
+import { useTheme } from './theme';
 import { useI18n, type TranslationKey } from './i18n';
 import {
   getConversation,
   getEmailProvider,
   invalidateConversationCache,
+  isDemoMode,
   runEmailAssistant,
   stopRun as apiStopRun,
   StoredMessage,
@@ -481,6 +484,8 @@ function errorStuckNode(
 
 export default function App() {
   const { t } = useI18n();
+  const { theme, toggleTheme } = useTheme();
+  const [tourOpen, setTourOpen] = useState(false);
   const [messages, setMessages] = useState<StreamMessage[]>([]);
   const [pending, setPending] = useState<PendingDraft | null>(null);
   const [running, setRunning] = useState(false);
@@ -523,6 +528,9 @@ export default function App() {
   /** Current email provider detected from backend health endpoint.
    * Drives the onboarding panel's data-source indicator. */
   const [emailProvider, setEmailProvider] = useState<string>('mock');
+  /** True when no backend answered /email/health — the in-browser demo
+   * engine is serving all API calls. Shown as a header badge. */
+  const [demoMode, setDemoMode] = useState(false);
   /** Latest narration line emitted by a node (via stream_mode="custom").
    * Renders as a live chip at the bottom of the conversation column so the
    * user sees what the backend is doing during long ops (classify ~10s,
@@ -1206,10 +1214,28 @@ export default function App() {
       // Nothing to restore — unblock UI instantly.
       setInitialized(true);
     }
-    // Detect email provider for the onboarding panel data-source indicator
-    void getEmailProvider().then(setEmailProvider);
+    // Detect email provider for the onboarding panel data-source indicator.
+    // getEmailProvider also runs the one-time backend probe — when it fails
+    // we flip on the demo-mode badge (in-browser engine serves everything).
+    void getEmailProvider().then((provider) => {
+      setEmailProvider(provider);
+      setDemoMode(isDemoMode());
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // First-visit guided tour: auto-open while the workspace is still in its
+  // empty state (no timeline messages yet) and the user has never seen or
+  // dismissed the tour. The header "Tour" button replays it anytime.
+  useEffect(() => {
+    if (!initialized || running || messages.length > 0) return;
+    try {
+      if (window.localStorage.getItem(TOUR_SEEN_KEY)) return;
+    } catch {
+      return;
+    }
+    setTourOpen(true);
+  }, [initialized, running, messages.length]);
 
   const processSingleEmail = useCallback(
     (emailId: string) => {
@@ -1292,8 +1318,32 @@ export default function App() {
               </span>
             </div>
           </div>
-          {/* GitHub source link */}
+          {/* Tour + theme + GitHub + demo badge */}
           <div style={{ display: 'flex', alignItems: 'center', gap: tokens.space[2] }}>
+            {demoMode && (
+              <span style={demoBadge} title={t('demoBadgeTitle')}>
+                <Icon name="zap" size={11} />
+                <span>{t('demoBadge')}</span>
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setTourOpen(true)}
+              style={headerGhostBtn}
+              title={t('tourButtonTitle')}
+            >
+              <Icon name="help-circle" size={14} />
+              <span>{t('tourButton')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              style={headerGhostBtn}
+              title={t('themeToggleTitle')}
+              data-tour="theme"
+            >
+              <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14} />
+            </button>
             <GitHubButton />
             <RuntimeStatusChip
             running={running}
@@ -1314,6 +1364,7 @@ export default function App() {
               disabled={running || restoring || !initialized}
               style={primaryBtn}
               title={t('fetchEmails')}
+              data-tour="fetch"
             >
               <Icon name="inbox" size={14} />
               <span>{t('fetchEmails')}</span>
@@ -1323,6 +1374,7 @@ export default function App() {
               disabled={running || restoring || !initialized}
               style={primaryBtn}
               title={t('aiSmartProcess')}
+              data-tour="ai"
             >
               <Icon name="sparkles" size={14} />
               <span>{t('aiSmartProcess')}</span>
@@ -1355,6 +1407,7 @@ export default function App() {
             style={historyToggleBtn}
             aria-pressed={historyOpen}
             title={t('history')}
+            data-tour="history"
           >
             <Icon name="archive" size={13} />
             <span>{t('history')}</span>
@@ -1445,6 +1498,9 @@ export default function App() {
         />
       }
     />
+
+    {/* Guided tour overlay */}
+    <TourGuide open={tourOpen} onClose={() => setTourOpen(false)} />
 
     {/* AI Smart Process confirmation modal */}
     {showAiConfirm && (
@@ -1669,6 +1725,41 @@ const newSessionBtn: React.CSSProperties = {
   border: `1px solid ${tokens.color.border}`,
   cursor: 'pointer',
   lineHeight: 1.2,
+};
+
+/** Header ghost buttons (Tour / theme toggle) — quiet, icon-led. */
+const headerGhostBtn: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 5,
+  padding: '6px 10px',
+  borderRadius: tokens.radius.md,
+  fontSize: tokens.fontSize.sm,
+  fontWeight: tokens.fontWeight.medium,
+  color: tokens.color.textSubtle,
+  background: 'transparent',
+  border: `1px solid ${tokens.color.border}`,
+  cursor: 'pointer',
+  lineHeight: 1.2,
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
+};
+
+/** Demo-mode pill — shown when no backend is reachable and the in-browser
+ * engine serves all API calls. */
+const demoBadge: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  padding: '4px 10px',
+  borderRadius: tokens.radius.pill,
+  background: tokens.color.brandSoft,
+  color: tokens.color.brand,
+  border: `1px solid ${tokens.color.brandBorder}`,
+  fontSize: tokens.fontSize.xs,
+  fontFamily: tokens.font.mono,
+  fontWeight: tokens.fontWeight.medium,
+  whiteSpace: 'nowrap',
 };
 
 // ─── AI Confirm Modal ───────────────────────────────────────────────────────

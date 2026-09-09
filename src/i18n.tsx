@@ -238,6 +238,38 @@ const translations = {
 
   // ChatLayout
   resizeHandleTitle: 'Drag to resize',
+
+  // Demo mode (no backend reachable — in-browser engine)
+  demoBadge: 'Demo',
+  demoBadgeTitle: 'No backend detected — running fully in your browser with sample data',
+
+  // Theme
+  themeToggleTitle: 'Toggle dark mode',
+  themeLight: 'Light',
+  themeDark: 'Dark',
+
+  // Tour guide
+  tourButton: 'Tour',
+  tourButtonTitle: 'Take a guided tour of the workspace',
+  tourStepOf: 'Step {i} of {t}',
+  tourNext: 'Next',
+  tourBack: 'Back',
+  tourSkip: 'Skip',
+  tourFinish: 'Finish',
+  tourFetchTitle: 'Fetch emails',
+  tourFetchBody: 'Start here — pull the latest emails from your inbox into the workspace.',
+  tourAiTitle: 'AI Smart Process',
+  tourAiBody: 'Let AI pick which emails need replies, draft each one, and wait for your approval.',
+  tourInboxTitle: 'Inbox',
+  tourInboxBody: 'Classified emails land here with priority scores. Hover any row for its Process button, or click a row for details.',
+  tourCenterTitle: 'Conversation',
+  tourCenterBody: 'The timeline narrates every run. Drafts awaiting your decision appear here as review cards.',
+  tourPipelineTitle: 'Pipeline',
+  tourPipelineBody: 'Watch each stage — fetch, classify, prioritize, draft, review, apply, summarize — light up in real time.',
+  tourHistoryTitle: 'History',
+  tourHistoryBody: 'Past sessions are archived here. Switch back anytime or start a fresh session.',
+  tourThemeTitle: 'Dark mode',
+  tourThemeBody: 'Prefer the dark side? Flip the whole workspace between light and dark here.',
 } as const;
 
 export type TranslationKey = keyof typeof translations;

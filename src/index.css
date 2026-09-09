@@ -16,10 +16,96 @@ body {
   height: 100%;
   /* Prevent the document from scrolling — each panel manages its own scroll. */
   overflow: hidden;
-  background: #ffffff;
-  color: #0a0a0a;
+  background: var(--c-bg);
+  color: var(--c-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Theme palettes (consumed via design-tokens.ts `var(--c-*)`) ─────────
+ * :root = light (default). [data-theme="dark"] on <html> flips the app.
+ * `color-scheme` keeps native controls (scrollbars, form fields) in sync. */
+
+:root {
+  color-scheme: light;
+  --c-bg: #ffffff;
+  --c-surface: #fafafa;
+  --c-surface-hover: #f5f5f5;
+  --c-surface-muted: #f0f0f0;
+  --c-surface-elevated: #ffffff;
+  --c-gradient-brand: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  --c-gradient-brand-strong: linear-gradient(135deg, #115e59 0%, #0d9488 100%);
+  --c-border: #e8e8e8;
+  --c-border-strong: #d4d4d4;
+  --c-border-subtle: #f0f0f0;
+  --c-text: #0a0a0a;
+  --c-text-muted: #525252;
+  --c-text-subtle: #737373;
+  --c-text-disabled: #a3a3a3;
+  --c-text-inverted: #ffffff;
+  --c-brand: #0d9488;
+  --c-brand-hover: #0f766e;
+  --c-brand-soft: #f0fdfa;
+  --c-brand-softer: #f7fffe;
+  --c-brand-border: #5eead4;
+  --c-success: #15803d;
+  --c-success-soft: #f0fdf4;
+  --c-warning: #a16207;
+  --c-warning-soft: #fefce8;
+  --c-danger: #b91c1c;
+  --c-danger-soft: #fef2f2;
+  --c-info: #0284c7;
+  --c-info-soft: #f0f9ff;
+  --c-cat-urgent: #b91c1c;
+  --c-cat-meeting: #0284c7;
+  --c-cat-internal: #0d9488;
+  --c-cat-marketing: #a16207;
+  --c-cat-notification: #6b7280;
+  --c-cat-followup: #15803d;
+  --c-cat-spam: #9ca3af;
+  --c-cat-billing: #7c3aed;
+  --c-cat-other: #6b7280;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --c-bg: #0a0a0c;
+  --c-surface: #131316;
+  --c-surface-hover: #1c1c21;
+  --c-surface-muted: #232329;
+  --c-surface-elevated: #17171b;
+  --c-gradient-brand: linear-gradient(135deg, #17171b 0%, #131316 100%);
+  --c-gradient-brand-strong: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  --c-border: #26262c;
+  --c-border-strong: #3b3b44;
+  --c-border-subtle: #1c1c21;
+  --c-text: #f4f4f5;
+  --c-text-muted: #c6c6cd;
+  --c-text-subtle: #9797a1;
+  --c-text-disabled: #5c5c66;
+  --c-text-inverted: #0a0a0a;
+  --c-brand: #2dd4bf;
+  --c-brand-hover: #5eead4;
+  --c-brand-soft: rgba(45, 212, 191, 0.12);
+  --c-brand-softer: rgba(45, 212, 191, 0.06);
+  --c-brand-border: rgba(45, 212, 191, 0.35);
+  --c-success: #4ade80;
+  --c-success-soft: rgba(74, 222, 128, 0.12);
+  --c-warning: #facc15;
+  --c-warning-soft: rgba(250, 204, 21, 0.12);
+  --c-danger: #f87171;
+  --c-danger-soft: rgba(248, 113, 113, 0.12);
+  --c-info: #38bdf8;
+  --c-info-soft: rgba(56, 189, 248, 0.12);
+  --c-cat-urgent: #f87171;
+  --c-cat-meeting: #38bdf8;
+  --c-cat-internal: #2dd4bf;
+  --c-cat-marketing: #fbbf24;
+  --c-cat-notification: #9ca3af;
+  --c-cat-followup: #4ade80;
+  --c-cat-spam: #6b7280;
+  --c-cat-billing: #a78bfa;
+  --c-cat-other: #9ca3af;
 }
 
 body {

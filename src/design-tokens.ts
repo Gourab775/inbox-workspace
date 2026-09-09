@@ -6,58 +6,63 @@
  * surfaces only where it earns attention. No gradients on surfaces,
  * no heavy shadows; hierarchy comes from typography weight + spacing,
  * not from color volume.
+ *
+ * Dark mode: every ``color`` token resolves to a CSS variable declared in
+ * ``index.css`` (``:root`` = light, ``[data-theme="dark"]`` = dark), so
+ * components keep consuming ``tokens.color.*`` unchanged and the theme
+ * flips with a single ``data-theme`` attribute on <html>.
  */
 
 export const tokens = {
   color: {
     // Surfaces — layered neutral grays (zero hue tint)
-    bg: '#ffffff',
-    surface: '#fafafa',
-    surfaceHover: '#f5f5f5',
-    surfaceMuted: '#f0f0f0',
-    surfaceElevated: '#ffffff',
-    gradientBrand: 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)',
-    gradientBrandStrong: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)',
+    bg: 'var(--c-bg)',
+    surface: 'var(--c-surface)',
+    surfaceHover: 'var(--c-surface-hover)',
+    surfaceMuted: 'var(--c-surface-muted)',
+    surfaceElevated: 'var(--c-surface-elevated)',
+    gradientBrand: 'var(--c-gradient-brand)',
+    gradientBrandStrong: 'var(--c-gradient-brand-strong)',
 
     // Borders — barely there
-    border: '#e8e8e8',
-    borderStrong: '#d4d4d4',
-    borderSubtle: '#f0f0f0',
+    border: 'var(--c-border)',
+    borderStrong: 'var(--c-border-strong)',
+    borderSubtle: 'var(--c-border-subtle)',
 
     // Text — high contrast hierarchy (no mid-tone confusion)
-    text: '#0a0a0a',
-    textMuted: '#525252',
-    textSubtle: '#737373',
-    textDisabled: '#a3a3a3',
-    textInverted: '#ffffff',
+    text: 'var(--c-text)',
+    textMuted: 'var(--c-text-muted)',
+    textSubtle: 'var(--c-text-subtle)',
+    textDisabled: 'var(--c-text-disabled)',
+    textInverted: 'var(--c-text-inverted)',
 
     // Brand — muted teal (used sparingly: active states, primary CTA, links)
-    brand: '#0d9488',
-    brandHover: '#0f766e',
-    brandSoft: '#f0fdfa',
-    brandSofter: '#f7fffe',
-    brandBorder: '#5eead4',
+    brand: 'var(--c-brand)',
+    brandHover: 'var(--c-brand-hover)',
+    brandSoft: 'var(--c-brand-soft)',
+    brandSofter: 'var(--c-brand-softer)',
+    brandBorder: 'var(--c-brand-border)',
 
     // Status — desaturated, understated
-    success: '#15803d',
-    successSoft: '#f0fdf4',
-    warning: '#a16207',
-    warningSoft: '#fefce8',
-    danger: '#b91c1c',
-    dangerSoft: '#fef2f2',
-    info: '#0284c7',
-    infoSoft: '#f0f9ff',
+    success: 'var(--c-success)',
+    successSoft: 'var(--c-success-soft)',
+    warning: 'var(--c-warning)',
+    warningSoft: 'var(--c-warning-soft)',
+    danger: 'var(--c-danger)',
+    dangerSoft: 'var(--c-danger-soft)',
+    info: 'var(--c-info)',
+    infoSoft: 'var(--c-info-soft)',
 
     // Email category palette — more muted / fewer bright primaries
-    categoryUrgent: '#b91c1c',
-    categoryMeeting: '#0284c7',
-    categoryInternal: '#0d9488',
-    categoryMarketing: '#a16207',
-    categoryNotification: '#6b7280',
-    categoryFollowup: '#15803d',
-    categorySpam: '#9ca3af',
-    categoryBilling: '#7c3aed',
-    categoryOther: '#6b7280',
+    categoryUrgent: 'var(--c-cat-urgent)',
+    categoryMeeting: 'var(--c-cat-meeting)',
+    categoryInternal: 'var(--c-cat-internal)',
+    categoryMarketing: 'var(--c-cat-marketing)',
+    categoryNotification: 'var(--c-cat-notification)',
+    categoryFollowup: 'var(--c-cat-followup)',
+    categorySpam: 'var(--c-cat-spam)',
+    categoryBilling: 'var(--c-cat-billing)',
+    categoryOther: 'var(--c-cat-other)',
   },
 
   font: {

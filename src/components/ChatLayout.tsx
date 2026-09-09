@@ -115,7 +115,7 @@ export default function ChatLayout({
           gridTemplateColumns: compact ? '1fr' : `${leftWidth}px 4px 1fr 280px`,
         }}
       >
-        <div style={{ ...col, order: compact ? 1 : 0, minHeight: compact ? 200 : 0 }}>{left}</div>
+        <div data-tour="inbox" style={{ ...col, order: compact ? 1 : 0, minHeight: compact ? 200 : 0 }}>{left}</div>
         {!compact && (
           <div
             style={resizeHandle}
@@ -123,8 +123,8 @@ export default function ChatLayout({
             title={t('resizeHandleTitle')}
           />
         )}
-        <div style={{ ...col, order: compact ? 0 : 0 }}>{center}</div>
-        <div style={{ ...col, order: compact ? 2 : 0, minHeight: compact ? 200 : 0 }}>{right}</div>
+        <div data-tour="center" style={{ ...col, order: compact ? 0 : 0 }}>{center}</div>
+        <div data-tour="pipeline" style={{ ...col, order: compact ? 2 : 0, minHeight: compact ? 200 : 0 }}>{right}</div>
       </div>
 
       {/* History drawer — overlay + slide-in panel from the RIGHT. Stays

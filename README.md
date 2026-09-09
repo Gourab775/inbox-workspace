@@ -19,6 +19,8 @@ Shipped with realistic mock data for immediate evaluation and a one-variable swi
 - **Real-Time Pipeline Visualization** â€” SSE streams node-level progress; the UI renders a live flow diagram and streaming narrative.
 - **Pluggable Email Source** â€” Ships with 10 realistic mock messages; switch to live IMAP with a single environment variable.
 - **Prioritization & Rules Engine** â€” Classification, VIP boosts, and user-defined rules sort and filter actionable messages.
+- **Demo Mode (no backend needed)** — When `/email/*` is unreachable (e.g. static hosting), the UI transparently switches to an in-browser engine that simulates the full pipeline — fetch, classify, prioritize, draft, review, summarize — with history persisted to localStorage.
+- **Guided Tour & Dark Mode** — First-visit spotlight tour (replayable from the header) and a light/dark theme toggle persisted per browser.
 
 ## Tech Stack
 
@@ -98,6 +100,11 @@ cp .env.example .env
 | `IMAP_HOST` | No | IMAP hostname (e.g. `imap.gmail.com`) |
 | `IMAP_USER` | No | IMAP login username |
 | `IMAP_APP_PASSWORD` | No | App-specific password |
+| `VITE_API_BASE_URL` | No | Build-time backend origin for the frontend (e.g. `https://your-backend.example.com`). Empty = same origin. |
+
+### Demo mode
+
+If the frontend cannot reach `/email/health` (static hosts like Vercel or GitHub Pages ship no Python runtime), it automatically runs on the built-in demo engine (`src/demoBackend.ts`): same pipeline, same review flow, sample inbox, history in localStorage. Point `VITE_API_BASE_URL` at a deployed backend to use live AI instead.
 
 ### Development
 
